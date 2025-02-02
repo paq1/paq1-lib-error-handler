@@ -59,3 +59,27 @@ impl CanCombine for () {
     }
 }
 
+impl<T> CanCombine for Vec<T>
+where
+    T: Clone
+{
+    fn combine(&self, other: &Vec<T>) -> Self {
+        [self.clone(), other.clone()].concat()
+    }
+}
+
+
+pub trait MergeVecResultErr<T> {
+    fn flatten_result_err(&self) -> ResultErr<Vec<T>>;
+}
+
+impl<T> MergeVecResultErr<T> for Vec<ResultErr<T>>
+where
+    T: Clone
+{
+    fn flatten_result_err(&self) -> ResultErr<Vec<T>> {
+        self.iter().fold(Ok(Vec::new()), |acc, current| {
+            acc.combine(&current.clone().map(|a| vec![a]))
+        })
+    }
+}

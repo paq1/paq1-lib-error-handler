@@ -1,7 +1,5 @@
-#[cfg(feature = "combine")]
 use paq1_lib_error_handler::prelude::{*};
 
-#[cfg(feature = "combine")]
 #[test]
 pub fn should_combine_error_with_same_status() {
 
@@ -51,4 +49,86 @@ pub fn should_combine_error_with_same_status() {
         Ok(_) => panic!("Should have been an ErrorWithCode returned"),
     }
 
+}
+
+#[test]
+fn should_mapping_vec_of_result_err_to_result_err_vec_when_contain_only_ok_statement_test() {
+    let datas: Vec<ResultErr<i32>> = vec![
+        Ok(11),
+        Ok(12),
+        Ok(13)
+    ];
+
+    let flatten_result: ResultErr<Vec<i32>> = datas.flatten_result_err();
+
+    match flatten_result {
+        Ok(vector) => assert_eq!(vector, vec![11, 12, 13]),
+        _ => panic!("Should have been an Ok returned"),
+    }
+}
+
+
+#[test]
+fn should_mapping_vec_of_result_err_to_result_err_vec_when_contain_one_error_test() {
+
+    let result_with_error = Err(Error::ErrorWithCode(ErrorWithCode {
+        title: "bad request - main".to_string(),
+        code: "errbadrequest - main".to_string(),
+        status: 400,
+        description: Some("la commande est invalide".to_string()),
+        problems: vec![Problem { title: "champ A manquant".to_string(), description: None, warn_message: None }]
+    }));
+
+    let datas: Vec<ResultErr<i32>> = vec![
+        Ok(11),
+        Ok(12),
+        result_with_error,
+        Ok(13)
+    ];
+
+    let flatten_result: ResultErr<Vec<i32>> = datas.flatten_result_err();
+
+    match flatten_result {
+        Err(Error::ErrorWithCode(error)) => {
+            assert_eq!(error.problems.len(), 1)
+        }
+        _ => panic!("Should have been an ErrorWithCode returned"),
+    }
+}
+
+#[test]
+fn should_combine_and_mapping_vec_of_result_err_to_result_err_vec_when_contain_many_error_test() {
+
+    let result_with_error = Err(Error::ErrorWithCode(ErrorWithCode {
+        title: "bad request - main".to_string(),
+        code: "errbadrequest - main".to_string(),
+        status: 400,
+        description: Some("la commande est invalide".to_string()),
+        problems: vec![Problem { title: "champ A manquant".to_string(), description: None, warn_message: None }]
+    }));
+
+    let result_with_other_error_1 = Err(Error::ErrorWithCode(ErrorWithCode {
+        title: "bad request - other 1".to_string(),
+        code: "errbadrequest - other 1".to_string(),
+        status: 400,
+        description: Some("la commande est invalide".to_string()),
+        problems: vec![Problem { title: "champ B manquant".to_string(), description: None, warn_message: None }]
+    }));
+
+    let datas: Vec<ResultErr<i32>> = vec![
+        Ok(11),
+        Ok(12),
+        result_with_error,
+        result_with_other_error_1,
+        Ok(13)
+    ];
+
+    let flatten_result: ResultErr<Vec<i32>> = datas.flatten_result_err();
+
+    match flatten_result {
+        Err(Error::ErrorWithCode(error)) => {
+            assert_eq!(error.problems.len(), 3)
+        }
+        _ => panic!("Should have been an ErrorWithCode returned"),
+    }
 }
