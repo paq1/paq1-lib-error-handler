@@ -2,6 +2,16 @@
 name = "paq1-lib-error-handler"
 version = "0.1.0"
 edition = "2021"
+description = "give error data model with title, code, status, problems ... etc. And combine operator for ResultErr<T>"
+license = "MIT OR Apache-2.0"
+authors = ["paq1"]
+
+
 
 [dependencies]
-serde = { version = "1.0.203", features = ["derive"] }
+serde = { version = "1.0.203", features = ["derive"], optional = true }
+
+[features]
+default = []
+err_serde = [ "serde" ]
+combine = []

@@ -1,5 +1,7 @@
+#[cfg(feature = "combine")]
 use paq1_lib_error_handler::prelude::{*};
 
+#[cfg(feature = "combine")]
 #[test]
 pub fn should_combine_error_with_same_status() {
 
