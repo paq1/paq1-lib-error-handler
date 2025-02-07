@@ -132,3 +132,54 @@ fn should_combine_and_mapping_vec_of_result_err_to_result_err_vec_when_contain_m
         _ => panic!("Should have been an ErrorWithCode returned"),
     }
 }
+
+#[test]
+fn should_add_warn_in_error_when_combine_different_status_test() {
+
+    let result_with_error = Err(Error::ErrorWithCode(ErrorWithCode {
+        title: "bad request - main".to_string(),
+        code: "errbadrequest - main".to_string(),
+        status: 400,
+        description: Some("la commande est invalide".to_string()),
+        problems: vec![Problem { title: "champ A manquant".to_string(), description: None, warn_message: None }]
+    }));
+
+    let result_with_other_error_1 = Err(Error::ErrorWithCode(ErrorWithCode {
+        title: "bad request - other 1".to_string(),
+        code: "errbadrequest - other 1".to_string(),
+        status: 404,
+        description: Some("la commande est invalide".to_string()),
+        problems: vec![Problem { title: "champ B manquant".to_string(), description: None, warn_message: None }]
+    }));
+
+    let datas: Vec<ResultErr<i32>> = vec![
+        Ok(11),
+        Ok(12),
+        result_with_error,
+        result_with_other_error_1,
+        Ok(13)
+    ];
+
+    let flatten_result: ResultErr<Vec<i32>> = datas.flatten_result_err();
+    assert!(true);
+    match flatten_result {
+        Err(Error::ErrorWithCode(error)) => {
+            println!("{error:?}");
+            assert_eq!(error.problems.get(0).unwrap().warn_message, None);
+            assert_eq!(error.problems.get(1).unwrap().warn_message, Some("warn: status conflict from original error, maybe take care about this.".to_string()));
+            assert_eq!(error.problems.get(2).unwrap().warn_message, None);
+        }
+        _ => panic!("Should have been an ErrorWithCode returned"),
+    }
+}
+
+
+#[test]
+fn should_combine_void_test() {
+
+    let a = ();
+    let b = ();
+
+    let res = a.combine(&b);
+    assert_eq!(res, ());
+}

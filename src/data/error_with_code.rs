@@ -68,7 +68,7 @@ impl fmt::Display for Error {
 impl std::error::Error for Error {}
 
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub struct Problem {
     pub title: String,
     pub description: Option<String>,

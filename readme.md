@@ -6,6 +6,12 @@
 cargo test --all-features
 ```
 
+## test without features
+
+```cmd
+cargo test
+```
+
 
 ## test code coverage
 
