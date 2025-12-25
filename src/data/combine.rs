@@ -7,7 +7,7 @@ pub trait CanCombine {
 impl CanCombine for Error {
     fn combine(&self, other: &Self) -> Self {
         match (self, other) {
-            (Error::ErrorWithCode(error), Error::ErrorWithCode(other_error)) => {
+            (Error::Failure(error), Error::Failure(other_error)) => {
                 let current_problems: Vec<Problem> = error.problems.clone();
                 let is_status_conflict: bool = error.status != other_error.status;
 
@@ -27,7 +27,7 @@ impl CanCombine for Error {
 
                 let problems: Vec<Problem> = [current_problems, other_problems].concat();
 
-                Error::ErrorWithCode(
+                Error::Failure(
                     ErrorWithCode {
                         problems,
                         ..error.clone()

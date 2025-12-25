@@ -3,7 +3,7 @@ use paq1_lib_error_handler::prelude::{*};
 #[test]
 pub fn should_combine_error_with_same_status() {
 
-    let result_with_error: ResultErr<()> = Err(Error::ErrorWithCode(ErrorWithCode {
+    let result_with_error: ResultErr<()> = Err(Error::Failure(ErrorWithCode {
         title: "bad request - main".to_string(),
         code: "errbadrequest - main".to_string(),
         status: 400,
@@ -11,7 +11,7 @@ pub fn should_combine_error_with_same_status() {
         problems: vec![Problem { title: "champ A manquant".to_string(), description: None, warn_message: None }]
     }));
 
-    let result_with_other_error_1: ResultErr<()> = Err(Error::ErrorWithCode(ErrorWithCode {
+    let result_with_other_error_1: ResultErr<()> = Err(Error::Failure(ErrorWithCode {
         title: "bad request - other 1".to_string(),
         code: "errbadrequest - other 1".to_string(),
         status: 400,
@@ -19,7 +19,7 @@ pub fn should_combine_error_with_same_status() {
         problems: vec![Problem { title: "champ B manquant".to_string(), description: None, warn_message: None }]
     }));
 
-    let result_with_other_error_2: ResultErr<()> = Err(Error::ErrorWithCode(ErrorWithCode {
+    let result_with_other_error_2: ResultErr<()> = Err(Error::Failure(ErrorWithCode {
         title: "bad request - other 2".to_string(),
         code: "errbadrequest - other 2".to_string(),
         status: 400,
@@ -30,7 +30,7 @@ pub fn should_combine_error_with_same_status() {
     let combine_error = result_with_error.combine(&result_with_other_error_1).combine(&result_with_other_error_2);
 
     match combine_error {
-        Err(Error::ErrorWithCode(error)) => {
+        Err(Error::Failure(error)) => {
             assert_eq!(error.problems.len(), 5);
             assert_eq!(error.title, "bad request - main");
 
@@ -71,7 +71,7 @@ fn should_mapping_vec_of_result_err_to_result_err_vec_when_contain_only_ok_state
 #[test]
 fn should_mapping_vec_of_result_err_to_result_err_vec_when_contain_one_error_test() {
 
-    let result_with_error = Err(Error::ErrorWithCode(ErrorWithCode {
+    let result_with_error = Err(Error::Failure(ErrorWithCode {
         title: "bad request - main".to_string(),
         code: "errbadrequest - main".to_string(),
         status: 400,
@@ -89,7 +89,7 @@ fn should_mapping_vec_of_result_err_to_result_err_vec_when_contain_one_error_tes
     let flatten_result: ResultErr<Vec<i32>> = datas.flatten_result_err();
 
     match flatten_result {
-        Err(Error::ErrorWithCode(error)) => {
+        Err(Error::Failure(error)) => {
             assert_eq!(error.problems.len(), 1)
         }
         _ => panic!("Should have been an ErrorWithCode returned"),
@@ -99,7 +99,7 @@ fn should_mapping_vec_of_result_err_to_result_err_vec_when_contain_one_error_tes
 #[test]
 fn should_combine_and_mapping_vec_of_result_err_to_result_err_vec_when_contain_many_error_test() {
 
-    let result_with_error = Err(Error::ErrorWithCode(ErrorWithCode {
+    let result_with_error = Err(Error::Failure(ErrorWithCode {
         title: "bad request - main".to_string(),
         code: "errbadrequest - main".to_string(),
         status: 400,
@@ -107,7 +107,7 @@ fn should_combine_and_mapping_vec_of_result_err_to_result_err_vec_when_contain_m
         problems: vec![Problem { title: "champ A manquant".to_string(), description: None, warn_message: None }]
     }));
 
-    let result_with_other_error_1 = Err(Error::ErrorWithCode(ErrorWithCode {
+    let result_with_other_error_1 = Err(Error::Failure(ErrorWithCode {
         title: "bad request - other 1".to_string(),
         code: "errbadrequest - other 1".to_string(),
         status: 400,
@@ -126,7 +126,7 @@ fn should_combine_and_mapping_vec_of_result_err_to_result_err_vec_when_contain_m
     let flatten_result: ResultErr<Vec<i32>> = datas.flatten_result_err();
 
     match flatten_result {
-        Err(Error::ErrorWithCode(error)) => {
+        Err(Error::Failure(error)) => {
             assert_eq!(error.problems.len(), 3)
         }
         _ => panic!("Should have been an ErrorWithCode returned"),
@@ -136,7 +136,7 @@ fn should_combine_and_mapping_vec_of_result_err_to_result_err_vec_when_contain_m
 #[test]
 fn should_add_warn_in_error_when_combine_different_status_test() {
 
-    let result_with_error = Err(Error::ErrorWithCode(ErrorWithCode {
+    let result_with_error = Err(Error::Failure(ErrorWithCode {
         title: "bad request - main".to_string(),
         code: "errbadrequest - main".to_string(),
         status: 400,
@@ -144,7 +144,7 @@ fn should_add_warn_in_error_when_combine_different_status_test() {
         problems: vec![Problem { title: "champ A manquant".to_string(), description: None, warn_message: None }]
     }));
 
-    let result_with_other_error_1 = Err(Error::ErrorWithCode(ErrorWithCode {
+    let result_with_other_error_1 = Err(Error::Failure(ErrorWithCode {
         title: "bad request - other 1".to_string(),
         code: "errbadrequest - other 1".to_string(),
         status: 404,
@@ -163,7 +163,7 @@ fn should_add_warn_in_error_when_combine_different_status_test() {
     let flatten_result: ResultErr<Vec<i32>> = datas.flatten_result_err();
     assert!(true);
     match flatten_result {
-        Err(Error::ErrorWithCode(error)) => {
+        Err(Error::Failure(error)) => {
             println!("{error:?}");
             assert_eq!(error.problems.get(0).unwrap().warn_message, None);
             assert_eq!(error.problems.get(1).unwrap().warn_message, Some("warn: status conflict from original error, maybe take care about this.".to_string()));
