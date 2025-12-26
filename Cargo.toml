@@ -1,6 +1,6 @@
 [package]
 name = "paq1-lib-error-handler"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 description = "give error data model with title, code, status, problems ... etc. And combine operator for ResultErr<T>"
 license = "MIT OR Apache-2.0"
